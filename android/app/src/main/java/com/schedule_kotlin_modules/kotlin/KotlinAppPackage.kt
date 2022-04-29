@@ -9,7 +9,10 @@ import com.facebook.react.uimanager.ViewManager
 
 class KotlinAppPackage : ReactPackage {
     override fun createNativeModules(reactContext: ReactApplicationContext):
-            MutableList<NativeModule> = listOf(DatePickerModule(reactContext)).toMutableList()
+            MutableList<NativeModule> = listOf(
+        DatePickerModule(reactContext),
+        ImagePickerModule(reactContext)
+    ).toMutableList()
 
     override fun createViewManagers(reactContext: ReactApplicationContext) = listOf(NativeImageView(reactContext)).toMutableList()
 }
