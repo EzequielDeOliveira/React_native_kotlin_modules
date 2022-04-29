@@ -3,11 +3,9 @@ import { View, Text } from 'react-native';
 
 import { useRoute } from '@react-navigation/native';
 
-const Meet = ({
-
-}) => {
+const Meet = ({}) => {
     const route = useRoute();
-    console.log(route)
+
     return (
         <View>
             <Text>{route.params.title}</Text>

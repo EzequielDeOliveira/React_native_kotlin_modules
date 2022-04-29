@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
+import DatePickerInput from '../Components/DatePickerInput';
 import DefaultInput from '../Components/DefaultInput';
 import FloatButton from '../Components/FloatButton';
 
@@ -8,8 +9,8 @@ const CreateMeet = () => (
         <ScrollView style={styles.scroll}>
             <DefaultInput title='Nome' />
             <DefaultInput title='Descrição' />
-            <DefaultInput title='Inicio' />
-            <DefaultInput title='Fim' />
+            <DatePickerInput title='Inicio' />
+            <DatePickerInput title='Fim' />
             <DefaultInput title='Localização' />
         </ScrollView>
         <FloatButton longButton text="Salvar"/>
