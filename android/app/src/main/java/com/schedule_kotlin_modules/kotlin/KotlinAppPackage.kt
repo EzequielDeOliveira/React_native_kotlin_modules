@@ -11,6 +11,5 @@ class KotlinAppPackage : ReactPackage {
     override fun createNativeModules(reactContext: ReactApplicationContext):
             MutableList<NativeModule> = listOf(DatePickerModule(reactContext)).toMutableList()
 
-    override fun createViewManagers(reactContext: ReactApplicationContext) :
-            MutableList<ViewManager<View, ReactShadowNode<*>>> = mutableListOf()
+    override fun createViewManagers(reactContext: ReactApplicationContext) = listOf(NativeImageView(reactContext)).toMutableList()
 }
