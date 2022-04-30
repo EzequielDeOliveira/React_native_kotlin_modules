@@ -8,9 +8,18 @@ import ImagePickerModule from '../NativeModules/ImagePickerModule';
 const Meet = ({ }) => {
     const route = useRoute();
 
-    const onPress = async () => {
+    const getImageFromGallery = async () => {
         try {
             let result = await ImagePickerModule.pickFromGallery();
+            console.log(result)
+        } catch(e) {
+            console.log(e);
+        }
+    }
+
+    const getImageFromCamera = async () => {
+        try {
+            let result = await ImagePickerModule.pickFromCamera();
             console.log(result)
         } catch(e) {
             console.log(e);
@@ -24,7 +33,10 @@ const Meet = ({ }) => {
             <Text>{route.params.init}</Text>
             <Text>{route.params.end}</Text>
             <ImageView style={{ height: 200, width: 200 }} src={{ uri: "https://i.pinimg.com/originals/f5/1d/08/f51d08be05919290355ac004cdd5c2d6.png" }} />
-            <TouchableOpacity onPress={onPress}>
+            <TouchableOpacity onPress={getImageFromGallery}>
+                <Text>Pegar imagem da galeria</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={getImageFromCamera}>
                 <Text>Pegar imagem da camêra</Text>
             </TouchableOpacity>
         </View>

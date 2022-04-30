@@ -6,6 +6,8 @@ const { ImagePickerModule } = NativeModules;
  * Avaliable functions:
  * - pickFromGallery() ~ Promise
  *      - promise: used to get image data
+ * - pickFromCamera() ~ Promise
+ *      - promise: used to get image data
 */
 
 export default ImagePickerModule;
