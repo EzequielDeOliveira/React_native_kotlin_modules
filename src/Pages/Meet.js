@@ -1,45 +1,161 @@
-import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-
+import React, { useEffect, useState } from 'react';
+import {
+  View, Text, StyleSheet, ScrollView, ActivityIndicator,
+} from 'react-native';
 import { useRoute } from '@react-navigation/native';
-import { ImageView } from '../NativeComponents/ImageView';
+
+import ImageView from '../NativeComponents/ImageView';
 import ImagePickerModule from '../NativeModules/ImagePickerModule';
+import Theme from '../Theme';
+import FloatingOptions from '../Components/FloatingOptions';
+import { useSchedule } from '../Context';
+import CalendarModule from '../NativeModules/CalendarModule';
 
-const Meet = ({ }) => {
-    const route = useRoute();
+const Meet = ({ navigation }) => {
+  const route = useRoute();
+  const context = useSchedule();
+  const { deleteEvent, addImage } = context;
+  const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-    const getImageFromGallery = async () => {
-        try {
-            let result = await ImagePickerModule.pickFromGallery();
-            console.log(result)
-        } catch(e) {
-            console.log(e);
-        }
+  useEffect(() => {
+    navigation.setOptions({ title: route.params.title });
+  }, []);
+
+  useEffect(() => {
+    setImages(route.params.images);
+  }, [route.params]);
+
+  const getImageFromGallery = async () => {
+    setLoading(true);
+    try {
+      const result = await ImagePickerModule.pickFromGallery();
+      addImage(route.params.id, result);
+      setImages((prev) => [...prev, result]);
+    } catch (e) {
+      console.log(e);
     }
+    setLoading(false);
+  };
 
-    const getImageFromCamera = async () => {
-        try {
-            let result = await ImagePickerModule.pickFromCamera();
-            console.log(result)
-        } catch(e) {
-            console.log(e);
-        }
+  const getImageFromCamera = async () => {
+    setLoading(true);
+    try {
+      const result = await ImagePickerModule.pickFromCamera();
+      addImage(route.params.id, result);
+      setImages((prev) => [...prev, result]);
+    } catch (e) {
+      console.log(e);
     }
+    setLoading(false);
+  };
 
-    return (
-        <View>
-            <Text>{route.params.title}</Text>
-            <Text>{route.params.description}</Text>
-            <Text>{route.params.init}</Text>
-            <Text>{route.params.end}</Text>
-            <ImageView style={{ height: 200, width: 200 }} src={{ uri: "https://i.pinimg.com/originals/f5/1d/08/f51d08be05919290355ac004cdd5c2d6.png" }} />
-            <TouchableOpacity onPress={getImageFromGallery}>
-                <Text>Pegar imagem da galeria</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={getImageFromCamera}>
-                <Text>Pegar imagem da camêra</Text>
-            </TouchableOpacity>
+  return (
+    <View style={styles.container}>
+      {
+        loading && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={Theme.backgroundB4} style={styles.loading} />
+          </View>
+        )
+      }
+      <ScrollView style={styles.scroll}>
+        <Text style={styles.label}>Description:</Text>
+        <Text style={styles.value}>{route.params.description}</Text>
+        <Text style={styles.label}>Location:</Text>
+        <Text style={styles.value}>{route.params.location}</Text>
+        <Text style={styles.label}>Start Date:</Text>
+        <Text style={styles.value}>{route.params.init}</Text>
+        <Text style={styles.label}>End Date:</Text>
+        <Text style={styles.value}>{route.params.end}</Text>
+        <View style={styles.imageContainer}>
+          {
+            images.map((item, index) => (
+              <ImageView
+                style={styles.image}
+                key={index}
+                src={{ uri: item }}
+              />
+            ))
+          }
         </View>
-    );
-}
+      </ScrollView>
+      {
+        !loading
+        && (
+          <FloatingOptions
+            items={[
+              {
+                icon: 'camera',
+                onPress: getImageFromCamera,
+              },
+              {
+                icon: 'paperclip',
+                onPress: getImageFromGallery,
+              }, {
+                icon: 'calendar',
+                onPress: () => {
+                  const {
+                    title, location, init, end,
+                  } = route.params;
+                  CalendarModule.createEvent(title, location, init, end);
+                },
+              },
+              {
+                icon: 'trash',
+                onPress: () => {
+                  deleteEvent(route.params);
+                  navigation.goBack();
+                },
+              },
+            ]}
+          />
+        )
+      }
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: Theme.backgroundB2,
+  },
+  label: {
+    color: Theme.text,
+    fontWeight: 'bold',
+    marginVertical: '2%',
+  },
+  value: {
+    color: Theme.text,
+    fontSize: 16,
+    marginLeft: '10%',
+  },
+  loading: {
+    position: 'absolute',
+    alignSelf: 'center',
+    marginTop: '60%',
+  },
+  loadingContainer: {
+    backgroundColor: 'white',
+    flex: 1,
+    position: 'absolute',
+    height: '100%',
+    width: '100%',
+    alignSelf: 'center',
+    opacity: 0.3,
+  },
+  imageContainer: {
+    alignItems: 'center',
+    margin: '5%',
+  },
+  image: {
+    height: 300,
+    width: 300,
+    margin: '2%',
+  },
+  scroll: {
+    padding: '4%',
+  },
+});
 export default Meet;

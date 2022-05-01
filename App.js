@@ -1,10 +1,17 @@
 import React from 'react';
-import Routes from './src/Routes';
+import { StatusBar } from 'react-native';
 
-const App = () => {
-  return (
-    <Routes />
-  );
-};
+import Routes from './src/Routes';
+import Theme from './src/Theme';
+import ScheduleProvider from './src/Context';
+
+const App = () => (
+  <>
+    <ScheduleProvider>
+      <Routes />
+    </ScheduleProvider>
+    <StatusBar backgroundColor={Theme.background} />
+  </>
+);
 
 export default App;

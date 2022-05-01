@@ -1,16 +1,17 @@
-import React, { useState } from 'react';
-import { TouchableOpacity } from 'react-native';
+import React from 'react';
+import { TouchableOpacity, View } from 'react-native';
 
 import DefaultInput from './DefaultInput';
 import DatePickerModule from '../NativeModules/DatePickerModule';
 
-const DatePickerInput = ({ title }) => {
-    const [date, setDate] = useState('');
-    return (
-        <TouchableOpacity onPress={() => DatePickerModule.openDatePicker(setDate)}>
-            <DefaultInput title={title} disabled value={date}/>
-        </TouchableOpacity>
-    )
-}
+const DatePickerInput = ({ title, ...props }) => (
+  <TouchableOpacity
+    onPress={() => DatePickerModule.openDatePicker(props.onChangeText)}
+  >
+    <View pointerEvents="none">
+      <DefaultInput title={title} {...props} />
+    </View>
+  </TouchableOpacity>
+);
 
 export default DatePickerInput;
