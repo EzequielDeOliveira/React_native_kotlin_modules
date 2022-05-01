@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
     borderColor: Theme.backgroundB2,
     borderRadius: 10,
     padding: 10,
-    color: 'black'
+    color: 'black',
   },
 });
 
