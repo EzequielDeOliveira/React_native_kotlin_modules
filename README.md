@@ -395,3 +395,58 @@ and press the schedule or camera icon. The icon will call one of the methods: pa
     setLoading(false);
   };
  ```
+
+## Native Image View
+Now we have a native component instead of a native component. This component was part of the study to create this application.
+
+This component is created above another image component, so we need to extend ***SimpleViewManager<ReactImageView>***, but the function getName still needs to be overridden.
+   
+ The method to create setters to the component is an annotation like ***@ReactProp*** in our case was necessary to set the source of the image.
+   
+ The component [NativeImageView.kt](https://github.com/EzequielDeOliveira/React_native_kotlin_modules/blob/main/android/app/src/main/java/com/schedule_kotlin_modules/kotlin/NativeImageView.kt) is based on the idea of the [React Native's documentation](https://reactnative.dev/docs/native-components-android) 
+   
+ ```
+   class NativeImageView(
+    private val reactContext: ReactApplicationContext
+) : SimpleViewManager<ReactImageView>() {
+    override fun getName() = "CustomNativeImage"
+
+    override fun createViewInstance(context: ThemedReactContext) =
+        ReactImageView(context, Fresco.newDraweeControllerBuilder(), null, reactContext)
+
+    @ReactProp(name = "src")
+    fun setSrc(view: ReactImageView, uri: ReadableMap){
+        val sources = WritableNativeArray()
+        sources.pushMap(uri)
+        view.setSource(sources)
+    }
+}
+ ```
+   
+ ### Javascript
+
+The interface to handle this native component, [ImageView.js](https://github.com/EzequielDeOliveira/React_native_kotlin_modules/blob/main/src/NativeComponents/ImageView.js) imports the module and export it to the Javascript side.
+   
+ ```
+import { requireNativeComponent } from 'react-native';
+
+/**
+ * Composes `View`
+ *
+ * - src: {uri: string}
+ *
+ */
+
+const ImageView = requireNativeComponent('CustomNativeImage');
+
+export default ImageView;
+ ```
+To use this feature in the app, go to a meeting vision in [Meet.js](https://github.com/EzequielDeOliveira/React_native_kotlin_modules/blob/main/src/Pages/Meet.js) and use this component like that.
+   
+ ```
+<ImageView
+   style={styles.image}
+   key={index}
+   src={{ uri: item }}
+/>
+```
