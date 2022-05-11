@@ -467,4 +467,16 @@ class KotlinAppPackage : ReactPackage {
 }
 ```
    
-After returning the modules and the components passing the application context to them, we need to add this package to the ***MainApplication.java***. If you did the Kotlin configuration step correctly, now all works fine.
+After returning the modules and the components passing the application context to them, we need to add this package to the [MainApplication.java](https://github.com/EzequielDeOliveira/React_native_kotlin_modules/blob/092d492d0abcc99cbf65b43ae1bbfdf25640c75d/android/app/src/main/java/com/schedule_kotlin_modules/MainApplication.java#L31).
+
+```
+   ...
+       protected List<ReactPackage> getPackages() {
+          ...
+          packages.add(new KotlinAppPackage()); // This line
+          return packages;
+        }
+   ...
+```
+   
+If you did the Kotlin configuration step correctly, now all works fine. :smile:
