@@ -111,7 +111,7 @@ The annotation ***@ReactMethod*** is used in methods exposed to the Javascript s
 In our case, the method receives the information about the meeting, creates an Intent to the calendar,
 fills the fields, and finally uses the application's context to start the activity.
 
-#### Javascript
+### Javascript
 
 The interface to handle this native module, [CalendarModule.js](https://github.com/EzequielDeOliveira/React_native_kotlin_modules/blob/main/src/NativeModules/CalendarModule.js) imports the module and export it to the Javascript side.
 ```
@@ -189,7 +189,7 @@ The method marked with ***@ReactMethod*** defines a listener that gets the date 
 
 An important note about the callback is that each callback can be called once.
 
-#### Javascript
+### Javascript
 
 The interface to handle this native module, [DatePickerModule.js](https://github.com/EzequielDeOliveira/React_native_kotlin_modules/blob/main/src/NativeModules/DatePickerModule.js) imports the module and export it to the Javascript side.
 
@@ -214,3 +214,184 @@ The function called is:
 onPress={() => DatePickerModule.openDatePicker(props.onChangeText)}
 ```
 Where the onChangeText us created from a useState React hook, to update the string returned in the callback.
+
+## Image Picker Module
+This module is the most complex because it approaches another very used concept of Javascript, the concept of promises. A short explanation about promises, promises are a mechanism to call asynchronous functions, these functions have their routines, but nobody knows how much time the routine needs precisely. This routine can resolve the promise and return positively, or the promise can be rejected, and the result is negative.
+
+This module can get images from the gallery and camera to attach to the current meeting.
+Here the [ImagePickerModule.kt](https://github.com/EzequielDeOliveira/React_native_kotlin_modules/blob/main/android/app/src/main/java/com/schedule_kotlin_modules/kotlin/ImagePickerModule.kt) is bigger than the others. Then we need to explain in more detail what each method does.
+
+After creating the standard structure for native modules, let's start with the methods in this module.
+
+#### Creating file
+```
+private fun createFile(): File {
+        val timestamp: String = SimpleDateFormat("yyyy_MM_dd_mm_ss").format(Date())
+        val dir: File? = currentActivity?.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        return File.createTempFile(
+            "JPEG_${timestamp}_",
+            ".jpg",
+            dir
+        )
+    }
+```
+To get images from the camera, we need to create a file to store our images where the name is defined by the current timestamp and the file's extension.
+
+#### Activity listener
+```
+    private val activityEventListener = object : BaseActivityEventListener() {
+        override fun onActivityResult(
+            activity: Activity?,
+            requestCode: Int,
+            resultCode: Int,
+            data: Intent?
+        ) {
+            pickerPromise?.let { promise ->
+                when (resultCode) {
+                    Activity.RESULT_CANCELED ->
+                        promise.reject(E_PICKER_CANCELLED, "image picker was cancelled")
+                    Activity.RESULT_OK -> {
+                        when (requestCode) {
+                            REQUEST_IMAGE_PICK -> {
+                                uri = data?.data
+
+                                uri?.let {
+                                    promise.resolve(uri.toString())
+                                }
+
+                                    ?: promise.reject(E_NO_IMAGE_DATA_FOUND, "No image data found")
+                            }
+                            REQUEST_CAMERA_PICK -> {
+                                uri?.let {
+                                    promise.resolve(uri.toString())
+                                }
+
+                                    ?: promise.reject(E_NO_IMAGE_DATA_FOUND, "No image data found")
+                            }
+                        }
+                    }
+                }
+                pickerPromise = null
+            }
+        }
+    }
+```
+
+This listener is defined because to get the images needs to open another activity like the camera or the gallery. The listener just waits for a response from the activities.
+
+If the promise is not null, the listener checks the result code of the activity and, finally, checks the request code that matches each activity's defined id.
+
+After this process, the listener handles the result and resolves or rejects our promise.
+
+#### React methods
+
+Two methods are exposed to the Javascript side.
+
+```
+    @ReactMethod
+    fun pickFromGallery(promise: Promise) {
+        val activity = currentActivity
+        pickerPromise = promise
+
+        try {
+            val intent = Intent(Intent.ACTION_PICK).apply {
+                type = "image/*"
+            }
+            activity?.startActivityForResult(intent, REQUEST_IMAGE_PICK)
+        } catch (t: Throwable) {
+            pickerPromise?.reject(E_FAILED_TO_SHOW_PICKER, t)
+            pickerPromise = null
+        }
+    }
+```
+The first is to get images from the gallery, receive the promise as a parameter, initialize an intent to the gallery, and start it. If any error occurs, the method is aborted and returns a promise rejection.
+
+```
+    @ReactMethod
+    fun pickFromCamera(promise: Promise) {
+        val activity = currentActivity
+        pickerPromise = promise
+
+        if (activity?.packageManager == null) {
+            pickerPromise?.reject(E_FAILED_TO_SHOW_PICKER, "Error to get Activity")
+            pickerPromise = null
+            return
+        }
+
+        try {
+            Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
+                takePictureIntent.resolveActivity(activity.packageManager).also {
+                    val photoFile: File? = createFile()
+
+                    photoFile?.also {
+                        uri = FileProvider.getUriForFile(
+                            reactContext,
+                            BuildConfig.APPLICATION_ID + ".provider",
+                            it
+                        )
+                        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri)
+                        activity?.startActivityForResult(takePictureIntent, REQUEST_CAMERA_PICK)
+                    }
+
+                }
+            }
+        } catch (t: Throwable) {
+            pickerPromise?.reject(E_FAILED_TO_SHOW_PICKER, t)
+            pickerPromise = null
+        }
+    }
+   ```
+   
+The last one is to take pictures using the camera. The method receives the promise from the Javascript side, checks if all the resources are available to finish the method, and finally try to initialize an intent, check if the image was created correctly, and pass the Uri of the image to the intent, and finally initialize the activity. If any error occurs, the method is aborted and returns a promise rejection.
+
+### Javascript
+
+The interface to handle this native module, [ImagePickerModule.js](https://github.com/EzequielDeOliveira/React_native_kotlin_modules/blob/main/src/NativeModules/ImagePickerModule.js) imports the module and export it to the Javascript side.
+
+```
+
+import { NativeModules } from 'react-native';
+
+const { ImagePickerModule } = NativeModules;
+
+/**
+ * ImagePickerModule
+ * Avaliable functions:
+ * - pickFromGallery() ~ Promise
+ *      - promise: used to get image data
+ * - pickFromCamera() ~ Promise
+ *      - promise: used to get image data
+*/
+
+export default ImagePickerModule;
+```
+To use this feature in the app, go to a meeting vision in [Meet.js](https://github.com/EzequielDeOliveira/React_native_kotlin_modules/blob/main/src/Pages/Meet.js) 
+and press the schedule or camera icon. The icon will call one of the methods: passing a promise and expecting the result to attach on the current meeting.
+
+```
+
+  const getImageFromGallery = async () => {
+    setLoading(true);
+    try {
+      const result = await ImagePickerModule.pickFromGallery();
+      addImage(route.params.id, result);
+      setImages((prev) => [...prev, result]);
+    } catch (e) {
+      console.log(e);
+    }
+    setLoading(false);
+  };
+```
+```
+  const getImageFromCamera = async () => {
+    setLoading(true);
+    try {
+      const result = await ImagePickerModule.pickFromCamera();
+      addImage(route.params.id, result);
+      setImages((prev) => [...prev, result]);
+    } catch (e) {
+      console.log(e);
+    }
+    setLoading(false);
+  };
+ ```
