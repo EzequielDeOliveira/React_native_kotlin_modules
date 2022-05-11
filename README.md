@@ -142,6 +142,9 @@ onPress: () => {
                 },
 ```
 
+![ezgif com-gif-maker(1)](https://user-images.githubusercontent.com/37127457/167781498-49dd89b5-4234-48ca-b993-5a0f9bdb3533.gif)
+
+
 ##  DatePicker Module
 This module is used on the screen to create meetings. It's a view opened to insert dates in the meeting information.
 ```
@@ -214,6 +217,8 @@ The function called is:
 onPress={() => DatePickerModule.openDatePicker(props.onChangeText)}
 ```
 Where the onChangeText us created from a useState React hook, to update the string returned in the callback.
+
+![ezgif com-gif-maker(2)](https://user-images.githubusercontent.com/37127457/167781674-9f688e6c-a391-4fe3-b2b2-d8a7993bf7a8.gif)
 
 ## Image Picker Module
 This module is the most complex because it approaches another very used concept of Javascript, the concept of promises. A short explanation about promises, promises are a mechanism to call asynchronous functions, these functions have their routines, but nobody knows how much time the routine needs precisely. This routine can resolve the promise and return positively, or the promise can be rejected, and the result is negative.
@@ -382,6 +387,8 @@ and press the schedule or camera icon. The icon will call one of the methods: pa
     setLoading(false);
   };
 ```
+![ezgif com-gif-maker(3)](https://user-images.githubusercontent.com/37127457/167782634-adf4332f-9cfd-4ac9-9e8b-9459dd72e692.gif)
+
 ```
   const getImageFromCamera = async () => {
     setLoading(true);
@@ -395,6 +402,8 @@ and press the schedule or camera icon. The icon will call one of the methods: pa
     setLoading(false);
   };
  ```
+ 
+![ezgif com-gif-maker(7)](https://user-images.githubusercontent.com/37127457/167782864-dea47d23-2b67-4dee-99a8-e4e77869ebe9.gif)
 
 ## Native Image View
 Now we have a native component instead of a native component. This component was part of the study to create this application.
@@ -450,6 +459,7 @@ To use this feature in the app, go to a meeting vision in [Meet.js](https://gith
    src={{ uri: item }}
 />
 ```
+![ezgif com-gif-maker(7)](https://user-images.githubusercontent.com/37127457/167782951-ef6b63ff-8b31-4b74-8758-f1d93147c3d9.gif)
 
 ## App package
 Native modules and native components must be exposed to the Javascript side by a package. In this case, I created a package in Kotlin to expose our modules. [KotlinAppPackage.kt](https://github.com/EzequielDeOliveira/React_native_kotlin_modules/blob/main/android/app/src/main/java/com/schedule_kotlin_modules/kotlin/KotlinAppPackage.kt)
