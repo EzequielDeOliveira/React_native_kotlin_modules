@@ -450,3 +450,21 @@ To use this feature in the app, go to a meeting vision in [Meet.js](https://gith
    src={{ uri: item }}
 />
 ```
+
+## App package
+Native modules and native components must be exposed to the Javascript side by a package. In this case, I created a package in Kotlin to expose our modules. [KotlinAppPackage.kt](https://github.com/EzequielDeOliveira/React_native_kotlin_modules/blob/main/android/app/src/main/java/com/schedule_kotlin_modules/kotlin/KotlinAppPackage.kt)
+   
+```
+class KotlinAppPackage : ReactPackage {
+    override fun createNativeModules(reactContext: ReactApplicationContext):
+            MutableList<NativeModule> = listOf(
+        DatePickerModule(reactContext),
+        ImagePickerModule(reactContext),
+        CalendarModule(reactContext)
+    ).toMutableList()
+
+    override fun createViewManagers(reactContext: ReactApplicationContext) = listOf(NativeImageView(reactContext)).toMutableList()
+}
+```
+   
+After returning the modules and the components passing the application context to them, we need to add this package to the ***MainApplication.java***. If you did the Kotlin configuration step correctly, now all works fine.
