@@ -1,3 +1,4 @@
+# Developing native modules in React Native Using Kotlin 
 This repository aims to show how to integrate Kotlin to native modules in React Native in a natural (simulated) situation.
 The app proposes a schedule of events, where the app uses different native modules to accomplish some functionalities.
 
